@@ -1,0 +1,44 @@
+pip install pandas matplotlib fpdf
+import pandas as pd
+import matplotlib.pyplot as plt
+from fpdf import FPDF
+
+# --- Step 1: Read Data ---
+df = pd.read_csv("sales_data.csv")
+
+# --- Step 2: Analyze Data ---
+total_sales = df.groupby("Product")["Sales"].sum()
+
+# --- Step 3: Create Visualization ---
+plt.figure(figsize=(6, 4))
+total_sales.plot(kind='bar', color='skyblue')
+plt.title("Total Sales by Product")
+plt.ylabel("Sales Amount")
+plt.tight_layout()
+plt.savefig("sales_chart.png")  # save chart
+
+# --- Step 4: Generate PDF ---
+class PDF(FPDF):
+    def header(self):
+        self.set_font("Arial", "B", 16)
+        self.cell(0, 10, "Sales Report", ln=True, align="C")
+        self.ln(10)
+
+    def footer(self):
+        self.set_y(-15)
+        self.set_font("Arial", "I", 8)
+        self.cell(0, 10, f"Page {self.page_no()}", 0, 0, "C")
+
+pdf = PDF()
+pdf.add_page()
+
+pdf.set_font("Arial", size=12)
+pdf.cell(0, 10, "Summary:", ln=True)
+for product, sales in total_sales.items():
+    pdf.cell(0, 10, f"{product}: {sales}", ln=True)
+
+pdf.ln(10)
+pdf.image("sales_chart.png", x=10, w=180)  # add chart
+
+pdf.output("Sales_Report.pdf")
+print("PDF report generated: Sales_Report.pdf")
