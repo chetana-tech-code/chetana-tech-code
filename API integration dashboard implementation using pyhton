@@ -1,0 +1,28 @@
+pip install requests matplotlib seaborn
+import requests
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+# --- Replace with your own API key ---
+API_KEY = "your_api_key"
+CITY = "Mumbai"
+URL = f"https://api.openweathermap.org/data/2.5/forecast?q={CITY}&appid={API_KEY}&units=metric"
+
+# Fetch data from API
+response = requests.get(URL)
+data = response.json()
+
+# Extract temperature and datetime
+times = [item['dt_txt'] for item in data['list']]
+temps = [item['main']['temp'] for item in data['list']]
+
+# Visualization
+sns.set(style="whitegrid")
+plt.figure(figsize=(12, 5))
+sns.lineplot(x=times, y=temps, marker='o')
+plt.xticks(rotation=45)
+plt.title(f"5-Day Weather Forecast - {CITY}")
+plt.xlabel("Date & Time")
+plt.ylabel("Temperature (°C)")
+plt.tight_layout()
+plt.show()
